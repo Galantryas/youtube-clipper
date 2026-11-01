@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Clipper Pro - AI Video Clip Maker & Social Publisher</title>
+  <meta name="description" content="Generate high-quality vertical clips from any YouTube video with AI face tracking, styled subtitles, and one-click publishing to TikTok, YouTube Shorts, and Instagram Reels.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css?v=3.0">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-group">
+        <div class="logo-icon">✂️</div>
+        <div class="logo-text">
+          <h1>YouTube Clipper Pro</h1>
+          <span>Smart AI Framing & Social Studio</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btn-open-history-modal" class="btn btn-secondary btn-sm" title="View persistent social publishing history">
+          📜 Post History (<span id="history-count-badge">0</span>)
+        </button>
+        <button id="btn-open-social-modal" class="btn btn-secondary btn-sm" title="Configure social media accounts for one-click publishing">
+          🔑 Social Accounts (<span id="connected-platforms-count">0/3</span>)
+        </button>
+        <a href="#dashboard-gallery" class="btn btn-secondary btn-sm">
+          🎬 Gallery (<span id="header-library-count">0</span>)
+        </a>
+      </div>
+    </header>
+
+    <!-- Studio Mode Switcher Navigation -->
+    <div class="mode-navigation-bar">
+      <button type="button" class="mode-nav-pill active" id="btn-mode-manual">
+        <span class="pill-icon">✂️</span>
+        <span class="pill-text">Manual Video Clipper</span>
+      </button>
+      <button type="button" class="mode-nav-pill" id="btn-mode-autopilot">
+        <span class="pill-icon">⚡</span>
+        <span class="pill-text">Daily Trending Auto-Pilot</span>
+        <span class="status-indicator-dot off" id="header-ap-dot" title="Auto-Pilot Status"></span>
+      </button>
+    </div>
+
+    <!-- Mode 1: Manual Video Clipper Section -->
+    <div id="manual-clipper-mode">
+      <!-- Hero Section / URL Input -->
+    <section class="hero-input-section">
+      <h2 class="hero-title">Turn any YouTube video into viral clips</h2>
+      <p class="hero-subtitle">Automatic speaker tracking, 9:16 vertical cropping, styled subtitles, and instant 1-click publishing to YouTube Shorts, TikTok & Reels.</p>
+
+      <div class="url-input-wrapper">
+        <span class="url-icon">🔗</span>
+        <input 
+          type="url" 
+          id="youtube-url" 
+          class="url-input" 
+          placeholder="Paste YouTube link here (e.g., https://www.youtube.com/watch?v=...)"
+          autocomplete="off"
+        >
+        <div class="input-actions">
+          <button id="btn-paste" class="btn btn-secondary btn-sm" title="Paste from clipboard">
+            📋 Paste
+          </button>
+          <button id="btn-fetch" class="btn btn-primary">
+            <span id="fetch-text">Inspect Video</span>
+            <span id="fetch-spinner" style="display:none;">⏳</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Video Preview Card (Populated after Inspect) -->
+    <div id="video-preview-card" class="video-preview-card" style="display: none;">
+      <div class="thumbnail-container">
+        <img id="preview-thumb" src="" alt="Thumbnail" class="video-thumb">
+        <span id="preview-duration" class="thumb-duration">00:00</span>
+      </div>
+      <div class="video-meta-content">
+        <div>
+          <h3 id="preview-title" class="video-title">Video Title</h3>
+          <div class="video-channel">
+            <span>👤</span>
+            <span id="preview-channel">Channel Name</span>
+          </div>
+        </div>
+        <div class="badge-list">
+          <span id="badge-cached" class="badge badge-primary" style="display:none;">⚡ Cached Locally (Instant Clipping)</span>
+          <span id="badge-resolution" class="badge badge-primary">📺 1080p Max</span>
+          <span id="badge-captions" class="badge badge-blue">💬 Captions Available</span>
+          <span id="badge-views" class="badge">👁️ 0 views</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preferences Panel (Shown when video is loaded) -->
+    <div id="preferences-panel" style="display: none;">
+      <h3 class="section-heading">⚙️ Video & Clipping Preferences</h3>
+      
+      <div class="preferences-grid">
+        <!-- 1. Size / Aspect Ratio -->
+        <div class="pref-box">
+          <div class="pref-label">Aspect Ratio</div>
+          <div class="options-group" id="ratio-options">
+            <div class="option-card active" data-value="9:16">
+              <div class="opt-icon">📱</div>
+              <div class="opt-title">9:16 Vertical</div>
+              <div class="opt-desc">TikTok / Shorts / Reels</div>
+            </div>
+            <div class="option-card" data-value="1:1">
+              <div class="opt-icon">⏹️</div>
+              <div class="opt-title">1:1 Square</div>
+              <div class="opt-desc">Instagram Feed</div>
+            </div>
+            <div class="option-card" data-value="16:9">
+              <div class="opt-icon">🖥️</div>
+              <div class="opt-title">16:9 Landscape</div>
+              <div class="opt-desc">Standard YouTube</div>
+            </div>
+            <div class="option-card" data-value="4:5">
+              <div class="opt-icon">📷</div>
+              <div class="opt-title">4:5 Portrait</div>
+              <div class="opt-desc">Social Portrait</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Target Resolution -->
+        <div class="pref-box">
+          <div class="pref-label">Output Resolution</div>
+          <div class="options-group options-group-3" id="res-options">
+            <div class="option-card" data-value="720p">
+              <div class="opt-icon">⚡</div>
+              <div class="opt-title">720p</div>
+              <div class="opt-desc">Fast Export</div>
+            </div>
+            <div class="option-card active" data-value="1080p">
+              <div class="opt-icon">✨</div>
+              <div class="opt-title">1080p</div>
+              <div class="opt-desc">Full HD (Best)</div>
+            </div>
+            <div class="option-card" data-value="4k">
+              <div class="opt-icon">💎</div>
+              <div class="opt-title">4K</div>
+              <div class="opt-desc">Ultra HD</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Subtitles / Captions Option -->
+        <div class="pref-box">
+          <div class="pref-label">Subtitle Style</div>
+          <div class="options-group" id="sub-options">
+            <div class="option-card active" data-value="tiktok">
+              <div class="opt-icon">🟡</div>
+              <div class="opt-title">TikTok Style</div>
+              <div class="opt-desc">Yellow/White Bold</div>
+            </div>
+            <div class="option-card" data-value="clean">
+              <div class="opt-icon">⚪</div>
+              <div class="opt-title">Clean White</div>
+              <div class="opt-desc">Minimalist</div>
+            </div>
+            <div class="option-card" data-value="srt_only">
+              <div class="opt-icon">📄</div>
+              <div class="opt-title">Soft SRT</div>
+              <div class="opt-desc">Separate File</div>
+            </div>
+            <div class="option-card" data-value="none">
+              <div class="opt-icon">🚫</div>
+              <div class="opt-title">No Subtitles</div>
+              <div class="opt-desc">Clean Video</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Face Tracking AI Mode -->
+        <div class="pref-box">
+          <label class="pref-label">
+            <span>👤 Face Tracking AI Mode</span>
+            <span class="badge badge-primary">Smart AI</span>
+          </label>
+          <div class="options-grid" id="face-tracking-options">
+            <div class="option-card active" data-value="single">
+              <div class="opt-icon">🎯</div>
+              <div class="opt-title">Single Speaker</div>
+              <div class="opt-desc">Locks Dominant Face</div>
+            </div>
+            <div class="option-card" data-value="dynamic">
+              <div class="opt-icon">🔄</div>
+              <div class="opt-title">Dynamic Pan</div>
+              <div class="opt-desc">Glides Between People</div>
+            </div>
+            <div class="option-card" data-value="split">
+              <div class="opt-icon">👥</div>
+              <div class="opt-title">Podcast Split</div>
+              <div class="opt-desc">Stacked Dual Speaker</div>
+            </div>
+            <div class="option-card" data-value="none">
+              <div class="opt-icon">🚫</div>
+              <div class="opt-title">Off (Center)</div>
+              <div class="opt-desc">Static Center Crop</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Sliders & Clip Limits -->
+        <div class="pref-box">
+          <div class="slider-container" style="margin-bottom: 16px;">
+            <div class="pref-label">
+              <span>Number of Clips</span>
+              <span id="clip-count-val" class="slider-val-badge">3 Clips</span>
+            </div>
+            <input type="range" id="clip-count-slider" min="1" max="8" value="3" step="1">
+          </div>
+
+          <div class="slider-container">
+            <div class="pref-label">
+              <span>Clip Target Length</span>
+              <span id="clip-duration-val" class="slider-val-badge">30s</span>
+            </div>
+            <input type="range" id="clip-duration-slider" min="15" max="90" value="30" step="5">
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <div class="cta-area">
+        <button id="btn-generate" class="btn btn-primary btn-generate">
+          🎬 Generate Video Clips
+        </button>
+        <span id="cache-notice-text" style="font-size: 0.85rem; color: var(--text-muted);">
+          Clips will be automatically saved to a dedicated per-video directory.
+        </span>
+      </div>
+    </div>
+
+    <!-- Active Results Section -->
+    <section id="results-section" class="results-section" style="display: none;">
+      <div class="results-header-card">
+        <div class="results-info">
+          <h3>🎉 Newly Generated Clips Ready!</h3>
+          <p id="results-folder-path">Folder: output/...</p>
+        </div>
+        <button id="btn-open-result-folder" class="btn btn-primary">
+          📂 Open Folder in Explorer
+        </button>
+      </div>
+
+      <div id="clips-grid" class="clips-grid">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+    </div> <!-- /#manual-clipper-mode -->
+
+    <!-- Mode 2: Daily Trending Auto-Pilot Studio -->
+    <div id="autopilot-mode" class="autopilot-studio-wrapper" style="display: none;">
+      <!-- Auto-Pilot Master Card -->
+      <div class="autopilot-master-card">
+        <div class="ap-master-left">
+          <div class="ap-master-badge">⚡ Autonomous 24/7 Clipping & Multi-Platform Publisher</div>
+          <h2 class="ap-master-title">Daily Trending Auto-Pilot</h2>
+          <p class="ap-master-desc">
+            Automatically scrapes top trending YouTube videos daily across selected countries, identifies viral hook moments, generates 9:16 vertical clips, and publishes them automatically to YouTube Shorts, TikTok, and Instagram Reels.
+          </p>
+          <div class="ap-status-row">
+            <span class="ap-status-pill inactive" id="ap-status-pill">
+              <span class="pulse-dot"></span>
+              <span id="ap-status-text">⚪ Auto-Pilot Inactive</span>
+            </span>
+            <span class="ap-schedule-info" id="ap-schedule-info">
+              Next Run: Disabled
+            </span>
+          </div>
+        </div>
+        <div class="ap-master-right">
+          <div class="ap-toggle-box">
+            <span class="ap-toggle-label">Auto-Pilot Switch</span>
+            <label class="switch-toggle">
+              <input type="checkbox" id="ap-enable-toggle">
+              <span class="switch-slider"></span>
+            </label>
+            <span class="ap-toggle-hint" id="ap-toggle-hint">OFF</span>
+          </div>
+          <div class="ap-master-actions">
+            <button id="btn-save-autopilot" class="btn btn-primary">
+              💾 Save Settings
+            </button>
+            <button id="btn-trigger-autopilot" class="btn btn-publish" title="Trigger Auto-Pilot pipeline right now">
+              <span id="ap-trigger-text">⚡ Run Auto-Pilot Now</span>
+              <span id="ap-trigger-spinner" style="display: none;">⏳</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Auto-Pilot Live Run Progress Banner (Visible when job is active) -->
+      <div id="ap-live-banner" class="ap-live-banner" style="display: none;">
+        <div class="ap-live-banner-header">
+          <div class="ap-live-banner-title">
+            <span class="spinner-inline">⏳</span>
+            <strong id="ap-live-title">Auto-Pilot Pipeline Executing...</strong>
+          </div>
+          <span class="ap-live-pct" id="ap-live-pct">0%</span>
+        </div>
+        <div class="progress-bar-track">
+          <div id="ap-live-progress-fill" class="progress-bar-fill" style="width: 0%;"></div>
+        </div>
+        <p class="ap-live-msg" id="ap-live-msg">Initializing trending scraper...</p>
+      </div>
+
+      <!-- Auto-Pilot Configuration Grid -->
+      <div class="autopilot-settings-grid">
+        <!-- 1. Daily Schedule & Categories -->
+        <div class="pref-box ap-pref-card">
+          <div class="pref-label">
+            <span>⏰ Daily Trigger & Volume</span>
+          </div>
+          
+          <div class="ap-field-row">
+            <label class="ap-field-label" for="ap-time-input">Execution Time (Daily):</label>
+            <input type="time" id="ap-time-input" class="form-input ap-time-picker" value="09:00">
+          </div>
+
+          <div class="ap-field-row" style="margin-top: 10px;">
+            <label class="ap-field-label" for="ap-category-select">Video Category Filter:</label>
+            <select id="ap-category-select" class="form-select">
+              <option value="all">🌐 All Categories (Trending Top)</option>
+              <option value="gaming">🎮 Gaming</option>
+              <option value="entertainment">🎬 Entertainment</option>
+              <option value="tech">💻 Tech & Science</option>
+              <option value="news">📰 News & Politics</option>
+              <option value="music">🎵 Music</option>
+            </select>
+          </div>
+
+          <div class="slider-container" style="margin-top: 15px;">
+            <div class="pref-label">
+              <span>Max Trending Videos Per Run</span>
+              <span id="ap-max-videos-val" class="slider-val-badge">3 Videos</span>
+            </div>
+            <input type="range" id="ap-max-videos-slider" min="1" max="10" value="3" step="1">
+          </div>
+        </div>
+
+        <!-- 2. Target Country Feeds (Multi-Select) -->
+        <div class="pref-box ap-pref-card">
+          <div class="pref-label">
+            <span>🌐 Target Country Feeds (Multi-Select)</span>
+            <span class="badge badge-blue" id="ap-selected-countries-count">2 Selected</span>
+          </div>
+          
+          <div class="ap-country-shortcuts">
+            <button type="button" class="btn btn-secondary btn-xs" id="btn-country-all">Select All</button>
+            <button type="button" class="btn btn-secondary btn-xs" id="btn-country-top3">Top 3 (US, ID, GB)</button>
+            <button type="button" class="btn btn-secondary btn-xs" id="btn-country-clear">Clear</button>
+          </div>
+
+          <div class="ap-country-chips-grid" id="ap-country-chips-container">
+            <!-- Dynamic Country Chips will be rendered here -->
+          </div>
+        </div>
+
+        <!-- 3. Clip Preferences -->
+        <div class="pref-box ap-pref-card">
+          <div class="pref-label">
+            <span>✂️ Automated Clip Preferences</span>
+          </div>
+
+          <div class="ap-mini-pref-row">
+            <div class="ap-mini-pref">
+              <span class="ap-sublabel">Aspect Ratio</span>
+              <div class="options-group options-group-4" id="ap-ratio-options">
+                <div class="option-card active" data-value="9:16"><div class="opt-title">📱 9:16</div></div>
+                <div class="option-card" data-value="1:1"><div class="opt-title">⏹️ 1:1</div></div>
+                <div class="option-card" data-value="4:5"><div class="opt-title">📷 4:5</div></div>
+                <div class="option-card" data-value="16:9"><div class="opt-title">🖥️ 16:9</div></div>
+              </div>
+            </div>
+
+            <div class="ap-mini-pref">
+              <span class="ap-sublabel">Subtitle Style</span>
+              <div class="options-group options-group-4" id="ap-sub-options">
+                <div class="option-card active" data-value="tiktok"><div class="opt-title">🟡 TikTok</div></div>
+                <div class="option-card" data-value="clean"><div class="opt-title">⚪ Clean</div></div>
+                <div class="option-card" data-value="srt_only"><div class="opt-title">📄 Soft SRT</div></div>
+                <div class="option-card" data-value="none"><div class="opt-title">🚫 None</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ap-mini-pref-row" style="margin-top: 10px;">
+            <div class="ap-mini-pref">
+              <span class="ap-sublabel">Face Tracking Mode</span>
+              <div class="options-group options-group-3" id="ap-face-options">
+                <div class="option-card active" data-value="single"><div class="opt-title">👤 Center</div></div>
+                <div class="option-card" data-value="dynamic"><div class="opt-title">🔄 Dynamic</div></div>
+                <div class="option-card" data-value="split"><div class="opt-title">👥 Split</div></div>
+              </div>
+            </div>
+
+            <div class="ap-mini-pref">
+              <span class="ap-sublabel">Output Quality</span>
+              <div class="options-group options-group-3" id="ap-res-options">
+                <div class="option-card active" data-value="1080p"><div class="opt-title">✨ 1080p</div></div>
+                <div class="option-card" data-value="720p"><div class="opt-title">⚡ 720p</div></div>
+                <div class="option-card" data-value="4k"><div class="opt-title">💎 4K</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="slider-grid" style="margin-top: 15px;">
+            <div class="slider-container">
+              <div class="pref-label">
+                <span>Clips Per Video</span>
+                <span id="ap-clip-count-val" class="slider-val-badge">2 Clips</span>
+              </div>
+              <input type="range" id="ap-clip-count-slider" min="1" max="5" value="2" step="1">
+            </div>
+
+            <div class="slider-container">
+              <div class="pref-label">
+                <span>Clip Target Length</span>
+                <span id="ap-duration-val" class="slider-val-badge">30s</span>
+              </div>
+              <input type="range" id="ap-duration-slider" min="15" max="60" value="30" step="5">
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Auto-Publish Destinations & Templates -->
+        <div class="pref-box ap-pref-card">
+          <div class="pref-label">
+            <span>🚀 Auto-Publish & Social Targets</span>
+          </div>
+
+          <div class="ap-platform-checkboxes">
+            <label class="ap-platform-check" id="lbl-ap-target-yt">
+              <input type="checkbox" id="ap-target-yt" checked>
+              <span class="check-icon">🔴</span>
+              <span class="check-title">YouTube Shorts</span>
+            </label>
+
+            <label class="ap-platform-check" id="lbl-ap-target-tt">
+              <input type="checkbox" id="ap-target-tt">
+              <span class="check-icon">🎵</span>
+              <span class="check-title">TikTok</span>
+            </label>
+
+            <label class="ap-platform-check" id="lbl-ap-target-ig">
+              <input type="checkbox" id="ap-target-ig">
+              <span class="check-icon">📸</span>
+              <span class="check-title">Instagram Reels</span>
+            </label>
+          </div>
+
+          <div class="ap-field-row" style="margin-top: 12px;">
+            <label class="ap-field-label">Publishing Action:</label>
+            <div class="radio-group-horizontal">
+              <label class="radio-label">
+                <input type="radio" name="ap-publish-mode" value="auto_upload" checked>
+                <span>🚀 Full Auto-Publish (Upload directly)</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="ap-publish-mode" value="draft_only">
+                <span>📁 Ready Drafts (Save locally for review)</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="ap-field-row" style="margin-top: 10px;">
+            <label class="ap-field-label" for="ap-privacy-select">Privacy Visibility:</label>
+            <select id="ap-privacy-select" class="form-select">
+              <option value="public">🌍 Public (Everyone)</option>
+              <option value="unlisted">🔗 Unlisted (Link only)</option>
+              <option value="private">🔒 Private (Self only)</option>
+            </select>
+          </div>
+
+          <div class="ap-field-row" style="margin-top: 10px;">
+            <label class="ap-field-label" for="ap-title-template">Title Template:</label>
+            <input type="text" id="ap-title-template" class="form-input" value="{clip_title} #shorts #trending">
+            <span class="form-hint">Tags: <code>{clip_title}</code>, <code>{video_title}</code>, <code>{channel}</code>, <code>{country_code}</code></span>
+          </div>
+
+          <div class="ap-field-row" style="margin-top: 8px;">
+            <label class="ap-field-label" for="ap-desc-template">Description Template:</label>
+            <textarea id="ap-desc-template" class="form-textarea" rows="2">🔥 Trending viral moment from {video_title} by {channel}.
+
+#shorts #trending #{country_code} #viral</textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Execution History & Logs Table Section -->
+      <div class="ap-history-section">
+        <div class="ap-history-header">
+          <div>
+            <h3>📜 Auto-Pilot Execution History & Logs</h3>
+            <p>Track automated daily runs, processed trending videos, generated clips, and multi-platform upload receipts.</p>
+          </div>
+          <button id="btn-clear-ap-history" class="btn btn-secondary btn-sm">
+            🗑️ Clear History Logs
+          </button>
+        </div>
+
+        <div class="ap-history-table-wrapper" id="ap-history-table-wrapper">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+    </div> <!-- /#autopilot-mode -->
+
+    <!-- Permanent Dashboard Gallery Section -->
+    <section id="dashboard-gallery" class="dashboard-gallery-section">
+      <div class="gallery-header-row">
+        <div class="gallery-header-title">
+          <h3>🎬 Project Gallery & Saved Videos</h3>
+          <p>Browse previously processed YouTube links, replay clips, or one-click publish directly to social platforms.</p>
+        </div>
+        <div class="gallery-header-controls">
+          <div class="gallery-view-toggle">
+            <button type="button" id="toggle-view-video" class="view-toggle-btn active" title="View individual video projects">
+              📁 By Video
+            </button>
+            <button type="button" id="toggle-view-channel" class="view-toggle-btn" title="Group projects by YouTube Channel">
+              📺 Group by Channel
+            </button>
+          </div>
+          <div class="gallery-header-stats">
+            <span class="badge badge-primary"><span id="gallery-video-count">0</span> Videos</span>
+            <span class="badge badge-blue"><span id="gallery-clip-total">0</span> Total Clips</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Channel Category Pills Filter Bar -->
+      <div class="gallery-filter-bar" id="gallery-filter-bar">
+        <span class="filter-label">📺 Channel:</span>
+        <div class="channel-chips-container" id="channel-chips-container">
+          <!-- Dynamic Channel Category Pills: All (5), Channel A (3), Channel B (2) -->
+        </div>
+      </div>
+
+      <div id="dashboard-gallery-grid" class="dashboard-projects-grid">
+        <!-- Projects / Channel Groups rendered dynamically -->
+      </div>
+    </section>
+  </div>
+
+  <!-- Real-Time Processing Loader Modal -->
+  <div id="loader-modal" class="modal-overlay">
+    <div class="loader-modal-content">
+      <div class="loader-spinner-wrapper">
+        <svg class="circular-loader" viewBox="25 25 50 50">
+          <circle class="loader-path" cx="50" cy="50" r="20" fill="none" stroke-width="4" stroke-miterlimit="10"/>
+        </svg>
+        <div id="loader-percent" class="loader-pct-text">0%</div>
+      </div>
+
+      <h3 id="loader-title" class="loader-title">Processing Video</h3>
+      <p id="loader-subtitle" class="loader-subtitle">Initializing clipping engine...</p>
+
+      <div class="progress-bar-track">
+        <div id="progress-bar-fill" class="progress-bar-fill"></div>
+      </div>
+
+      <!-- Live Stages Tracker -->
+      <div class="stages-list">
+        <div class="stage-item" id="stage-info">
+          <span class="stage-icon">1</span>
+          <span>Fetch video metadata & transcripts</span>
+        </div>
+        <div class="stage-item" id="stage-download">
+          <span class="stage-icon">2</span>
+          <span>Source video download (or local cache)</span>
+        </div>
+        <div class="stage-item" id="stage-face">
+          <span class="stage-icon">3</span>
+          <span>AI face tracking & dynamic framing</span>
+        </div>
+        <div class="stage-item" id="stage-render">
+          <span class="stage-icon">4</span>
+          <span>Slicing, subtitles & FFmpeg encoding</span>
+        </div>
+        <div class="stage-item" id="stage-save">
+          <span class="stage-icon">5</span>
+          <span>Save to dedicated folder & finalize</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       ONE-CLICK SOCIAL PUBLISH MODAL
+       ======================================================== -->
+  <div id="publish-modal" class="modal-overlay">
+    <div class="loader-modal-content publish-modal-box">
+      <div class="modal-header-row">
+        <div>
+          <h3 class="loader-title" style="margin-bottom: 2px;">🚀 One-Click Social Media Publish</h3>
+          <p style="color: var(--text-secondary); font-size: 0.85rem;">Upload and publish this clip to YouTube Shorts, TikTok, and Instagram Reels simultaneously.</p>
+        </div>
+        <button id="btn-close-publish" class="btn btn-secondary btn-sm">✕ Close</button>
+      </div>
+
+      <!-- Platform Selection Controls -->
+      <div class="publish-platform-section">
+        <div class="publish-section-label">
+          <span>Target Social Platforms</span>
+          <div class="quick-select-links">
+            <button type="button" id="btn-select-all-platforms" class="link-btn">✨ Select All</button>
+            <button type="button" id="btn-clear-platforms" class="link-btn">Clear All</button>
+          </div>
+        </div>
+
+        <div class="social-checkbox-grid">
+          <!-- YouTube Shorts -->
+          <label class="social-checkbox-card" id="card-plat-youtube">
+            <input type="checkbox" id="plat-youtube" class="plat-checkbox" value="youtube" checked>
+            <div class="social-card-content">
+              <div class="social-brand-row">
+                <span class="social-icon icon-yt">▶</span>
+                <span class="social-name">YouTube Shorts</span>
+              </div>
+              <span class="social-status-indicator" id="status-tag-youtube">Ready</span>
+            </div>
+          </label>
+
+          <!-- TikTok -->
+          <label class="social-checkbox-card" id="card-plat-tiktok">
+            <input type="checkbox" id="plat-tiktok" class="plat-checkbox" value="tiktok" checked>
+            <div class="social-card-content">
+              <div class="social-brand-row">
+                <span class="social-icon icon-tt">🎵</span>
+                <span class="social-name">TikTok</span>
+              </div>
+              <span class="social-status-indicator" id="status-tag-tiktok">Ready</span>
+            </div>
+          </label>
+
+          <!-- Instagram Reels -->
+          <label class="social-checkbox-card" id="card-plat-instagram">
+            <input type="checkbox" id="plat-instagram" class="plat-checkbox" value="instagram" checked>
+            <div class="social-card-content">
+              <div class="social-brand-row">
+                <span class="social-icon icon-ig">📸</span>
+                <span class="social-name">Instagram Reels</span>
+              </div>
+              <span class="social-status-indicator" id="status-tag-instagram">Ready</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Video Details & Captions Form -->
+      <div class="publish-form-group">
+        <label class="form-label" for="publish-title">Title / Video Caption</label>
+        <input type="text" id="publish-title" class="form-input" placeholder="Enter an engaging video caption..." maxlength="120">
+      </div>
+
+      <div class="publish-form-group">
+        <label class="form-label" for="publish-desc">Description (Optional for YouTube/Instagram)</label>
+        <textarea id="publish-desc" class="form-textarea" rows="2" placeholder="Add extra context or credit..."></textarea>
+      </div>
+
+      <!-- Quick Hashtags -->
+      <div class="hashtags-selector">
+        <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Quick Hashtags:</span>
+        <div class="hashtag-chips">
+          <button type="button" class="tag-chip" data-tag="#shorts">#shorts</button>
+          <button type="button" class="tag-chip" data-tag="#viral">#viral</button>
+          <button type="button" class="tag-chip" data-tag="#fyp">#fyp</button>
+          <button type="button" class="tag-chip" data-tag="#reels">#reels</button>
+          <button type="button" class="tag-chip" data-tag="#trending">#trending</button>
+          <button type="button" class="tag-chip" data-tag="#youtube">#youtube</button>
+          <button type="button" class="tag-chip" data-tag="#tiktok">#tiktok</button>
+        </div>
+      </div>
+
+      <!-- Platform Settings Dropdowns -->
+      <div class="publish-options-row">
+        <div class="opt-field">
+          <label>YouTube Visibility</label>
+          <select id="opt-yt-privacy" class="form-select">
+            <option value="public" selected>Public</option>
+            <option value="unlisted">Unlisted</option>
+            <option value="private">Private</option>
+          </select>
+        </div>
+        <div class="opt-field">
+          <label>TikTok Privacy</label>
+          <select id="opt-tt-privacy" class="form-select">
+            <option value="PUBLIC_TO_EVERYONE" selected>Everyone</option>
+            <option value="MUTUAL_FOLLOW_FRIENDS">Friends</option>
+            <option value="SELF_ONLY">Only Me</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Live Uploading Banner Loader -->
+      <div id="publish-live-loader" class="publish-loader-banner" style="display: none;">
+        <div class="publish-spinner-circle"></div>
+        <div class="publish-loader-text">
+          <div class="publish-loader-title">🚀 Uploading in Background...</div>
+          <div class="publish-loader-sub" id="publish-loader-msg">Transferring video stream to selected platforms...</div>
+        </div>
+      </div>
+
+      <!-- Live Publish Feedback List -->
+      <div id="publish-live-feedback" class="publish-feedback-box" style="display: none;">
+        <!-- Status per platform -->
+      </div>
+
+      <!-- Publish Action Buttons -->
+      <div class="publish-footer-actions">
+        <button type="button" id="btn-cancel-publish" class="btn btn-secondary">Cancel</button>
+        <button type="button" id="btn-start-publish" class="btn btn-primary btn-publish-cta">
+          <span id="publish-btn-text">🚀 Publish to Selected Socials</span>
+          <span id="publish-spinner" style="display: none;">⏳</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       SOCIAL ACCOUNTS CONFIGURATION MODAL
+       ======================================================== -->
+  <div id="social-modal" class="modal-overlay">
+    <div class="loader-modal-content social-modal-box">
+      <div class="modal-header-row">
+        <div>
+          <h3 class="loader-title" style="margin-bottom: 2px;">🔑 Social Accounts & Auth Settings</h3>
+          <p style="color: var(--text-secondary); font-size: 0.85rem;">Configure API credentials and tokens for automated social media uploads.</p>
+        </div>
+        <button id="btn-close-social-modal" class="btn btn-secondary btn-sm">✕ Close</button>
+      </div>
+
+      <!-- Platform Tabs -->
+      <div class="social-tabs-nav">
+        <button class="social-tab-btn active" data-tab="tab-yt">▶ YouTube Shorts</button>
+        <button class="social-tab-btn" data-tab="tab-tt">🎵 TikTok</button>
+        <button class="social-tab-btn" data-tab="tab-ig">📸 Instagram Reels</button>
+      </div>
+
+      <div class="social-tabs-content">
+        <!-- YouTube Tab -->
+        <div id="tab-yt" class="social-tab-pane active">
+          <div class="account-status-banner" id="banner-yt">
+            <span id="banner-yt-icon">⚪</span>
+            <span id="banner-yt-text">YouTube: Not Configured</span>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label class="form-label" for="yt-token">YouTube Access Token (OAuth2 Bearer)</label>
+            <input type="password" id="yt-token" class="form-input" placeholder="ya29.a0AfH6SM...">
+            <span class="form-hint">Short-lived token generated from OAuth Playground.</span>
+          </div>
+
+          <!-- Permanent Auto-Refresh Credentials Section -->
+          <div class="auto-refresh-box">
+            <div class="auto-refresh-header">
+              ⚡ Permanent Auto-Refresh (Never Expire)
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 10px;">
+              <label class="form-label" for="yt-refresh-token" style="font-size: 0.75rem;">Refresh Token (starts with 1//0... from Step 2 in Playground)</label>
+              <input type="password" id="yt-refresh-token" class="form-input" placeholder="1//04...">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px;">
+              <div class="form-group">
+                <label class="form-label" for="yt-client-id" style="font-size: 0.75rem;">OAuth Client ID</label>
+                <input type="text" id="yt-client-id" class="form-input" placeholder="...apps.googleusercontent.com">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="yt-client-secret" style="font-size: 0.75rem;">OAuth Client Secret</label>
+                <input type="password" id="yt-client-secret" class="form-input" placeholder="GOCSPX-...">
+              </div>
+            </div>
+            <span class="form-hint" style="font-size: 0.7rem; color: var(--text-secondary);">Adding these allows the app to automatically renew your access token forever in the background.</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="yt-channel">Channel Name (Optional custom tag)</label>
+            <input type="text" id="yt-channel" class="form-input" placeholder="My YouTube Channel">
+          </div>
+
+          <div class="tab-actions">
+            <button id="btn-refresh-yt" class="btn btn-outline btn-sm" title="Request a new access token using your refresh token">🔄 Refresh Token</button>
+            <button id="btn-test-yt" class="btn btn-secondary btn-sm">🔍 Test Connection</button>
+            <button id="btn-save-yt" class="btn btn-primary btn-sm">💾 Save YouTube Auth</button>
+          </div>
+
+          <!-- YouTube Step-by-Step Tutorial & Notes Card -->
+          <div class="auth-tutorial-card" id="card-tutorial-yt">
+            <div class="tutorial-header-row" onclick="window.toggleTutorial('yt')">
+              <div class="tutorial-header-left">
+                <span class="tutorial-icon">📘</span>
+                <div>
+                  <div class="tutorial-header-title">Step-by-Step Setup &amp; Token Guide</div>
+                  <div class="tutorial-header-sub">Learn how YouTube tokens work &amp; how to connect permanent credentials</div>
+                </div>
+              </div>
+              <span class="tutorial-chevron" id="chevron-yt">▼</span>
+            </div>
+
+            <div class="tutorial-content-pane" id="pane-tutorial-yt">
+              <div class="token-specs-grid">
+                <div class="spec-pill">
+                  <span class="spec-label">Access Token</span>
+                  <span class="spec-val">⏱️ 1 Hour (Auto-Refreshed)</span>
+                </div>
+                <div class="spec-pill">
+                  <span class="spec-label">Refresh Token</span>
+                  <span class="spec-val">♾️ Permanent (In Production)</span>
+                </div>
+                <div class="spec-pill">
+                  <span class="spec-label">Required Scope</span>
+                  <span class="spec-val"><code>youtube.upload</code></span>
+                </div>
+              </div>
+
+              <div class="guide-steps-flow">
+                <div class="guide-card-step">
+                  <div class="step-badge">1</div>
+                  <div class="step-body">
+                    <div class="step-headline">Create OAuth Client ID in Google Cloud</div>
+                    <div class="step-desc">Enable <b>YouTube Data API v3</b> in Google Cloud, then under <b>Credentials</b> create an <b>OAuth Client ID</b> (Web application).</div>
+                    <a href="https://console.cloud.google.com/apis/credentials" target="_blank" class="btn-guide-link">↗ Open Google Cloud Console</a>
+                  </div>
+                </div>
+
+                <div class="guide-card-step">
+                  <div class="step-badge">2</div>
+                  <div class="step-body">
+                    <div class="step-headline">Set Consent Screen to "In Production" <span class="step-highlight">Crucial</span></div>
+                    <div class="step-desc">Under <b>OAuth consent screen</b>, click <b>PUBLISH APP</b> to switch from <i>Testing</i> to <i>In production</i>. This prevents Google from expiring your refresh token after 7 days.</div>
+                  </div>
+                </div>
+
+                <div class="guide-card-step">
+                  <div class="step-badge">3</div>
+                  <div class="step-body">
+                    <div class="step-headline">Generate Tokens in OAuth Playground</div>
+                    <div class="step-desc">In Google OAuth Playground, click ⚙️ <i>Gear</i> &rarr; check <i>"Use own OAuth credentials"</i> &rarr; paste your Client ID &amp; Secret. Select <code>https://www.googleapis.com/auth/youtube.upload</code>, authorize, and click <b>Exchange authorization code for tokens</b>.</div>
+                    <a href="https://developers.google.com/oauthplayground" target="_blank" class="btn-guide-link">↗ Open OAuth Playground</a>
+                  </div>
+                </div>
+
+                <div class="guide-card-step">
+                  <div class="step-badge">4</div>
+                  <div class="step-body">
+                    <div class="step-headline">Save Refresh Token in YouTube Clipper</div>
+                    <div class="step-desc">Paste your <b>Refresh token</b> (starts with <code>1//0...</code>), <b>Client ID</b>, and <b>Client Secret</b> into the form above and click <b>💾 Save YouTube Auth</b>.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TikTok Tab -->
+        <div id="tab-tt" class="social-tab-pane">
+          <div class="account-status-banner" id="banner-tt">
+            <span id="banner-tt-icon">⚪</span>
+            <span id="banner-tt-text">TikTok: Not Configured</span>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label class="form-label" for="tt-token">TikTok User Access Token</label>
+            <input type="password" id="tt-token" class="form-input" placeholder="act.example.123...">
+            <span class="form-hint">Starts with <code>act.</code> (Valid for 24 hours).</span>
+          </div>
+
+          <!-- Permanent Auto-Refresh Credentials Section for TikTok -->
+          <div class="auto-refresh-box">
+            <div class="auto-refresh-header">
+              ⚡ Permanent Auto-Refresh (365-Day Rolling Renewal)
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 10px;">
+              <label class="form-label" for="tt-refresh-token" style="font-size: 0.75rem;">Refresh Token (starts with <code>rft.</code> from Step 4)</label>
+              <input type="password" id="tt-refresh-token" class="form-input" placeholder="rft.example.123...">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px;">
+              <div class="form-group">
+                <label class="form-label" for="tt-client-key" style="font-size: 0.75rem;">Client Key (App Key)</label>
+                <input type="text" id="tt-client-key" class="form-input" placeholder="aw...">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="tt-client-secret" style="font-size: 0.75rem;">Client Secret (App Secret)</label>
+                <input type="password" id="tt-client-secret" class="form-input" placeholder="...">
+              </div>
+            </div>
+            <span class="form-hint" style="font-size: 0.7rem; color: var(--text-secondary);">With Refresh Token &amp; Client Key, YouTube Clipper Pro automatically renews your TikTok access in the background forever.</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="tt-account">Account Handle (Optional)</label>
+            <input type="text" id="tt-account" class="form-input" placeholder="@my_tiktok">
+          </div>
+
+          <div class="tab-actions">
+            <button id="btn-refresh-tt" class="btn btn-outline btn-sm" title="Request a new access token using your refresh token">🔄 Refresh Token</button>
+            <button id="btn-test-tt" class="btn btn-secondary btn-sm">🔍 Test Connection</button>
+            <button id="btn-save-tt" class="btn btn-primary btn-sm">💾 Save TikTok Auth</button>
+          </div>
+
+          <!-- TikTok Step-by-Step Tutorial & Notes Card -->
+          <div class="auth-tutorial-card" id="card-tutorial-tt">
+            <div class="tutorial-header-row" onclick="window.toggleTutorial('tt')">
+              <div class="tutorial-header-left">
+                <span class="tutorial-icon">📘</span>
+                <div>
+                  <div class="tutorial-header-title">Step-by-Step Setup &amp; Token Guide</div>
+                  <div class="tutorial-header-sub">How TikTok rolling 365-day tokens work &amp; setup commands</div>
+                </div>
+              </div>
+              <span class="tutorial-chevron" id="chevron-tt">▼</span>
+            </div>
+
+            <div class="tutorial-content-pane" id="pane-tutorial-tt">
+              <div class="token-specs-grid">
+                <div class="spec-pill">
+                  <span class="spec-label">Access Token</span>
+                  <span class="spec-val">⏱️ 24 Hours (Auto-Refreshed)</span>
+                </div>
+                <div class="spec-pill">
+                  <span class="spec-label">Refresh Token</span>
+                  <span class="spec-val">🔄 365 Days (Rolling Renewal)</span>
+                </div>
+                <div class="spec-pill">
+                  <span class="spec-label">Required Scopes</span>
+                  <span class="spec-val"><code>user.info.basic, video.publish</code></span>
+                </div>
+              </div>
+
+              <div class="guide-steps-flow">
+                <div class="guide-card-step">
+                  <div class="step-badge">1</div>
+                  <div class="step-body">
+                    <div class="step-headline">Create App in TikTok for Developers</div>
+                    <div class="step-desc">Go to TikTok Developers, add <b>Login Kit</b> and <b>Content Posting API</b>. Add <code>https://oauth.pstmn.io/v1/callback</code> to Redirect URIs. Under <b>Target/Test Users</b>, add your TikTok account username.</div>
+                    <a href="https://developers.tiktok.com/" target="_blank" class="btn-guide-link">↗ Open TikTok Developers</a>
+                  </div>
+                </div>
+
+                <div class="guide-card-step">
+                  <div class="step-badge">2</div>
+                  <div class="step-body">
+                    <div class="step-headline">Authorize in Web Browser</div>
+                    <div class="step-desc">Open the authorization link below (replace <code>YOUR_CLIENT_KEY</code>), click <b>Authorize</b>, and copy the <code>code</code> from the redirected address bar:</div>
+                    <div class="code-snippet-box">
+                      <code>https://www.tiktok.com/v2/auth/authorize/?client_key=YOUR_CLIENT_KEY&amp;scope=user.info.basic,video.upload,video.publish&amp;response_type=code&amp;redirect_uri=https%3A%2F%2Foauth.pstmn.io%2Fv1%2Fcallback&amp;state=123</code>
+                      <button type="button" class="btn-copy-code" onclick="window.copyToClipboard(this, 'https://www.tiktok.com/v2/auth/authorize/?client_key=YOUR_CLIENT_KEY&amp;scope=user.info.basic,video.upload,video.publish&amp;response_type=code&amp;redirect_uri=https%3A%2F%2Foauth.pstmn.io%2Fv1%2Fcallback&amp;state=123')">📋 Copy URL</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="guide-card-step">
+                  <div class="step-badge">3</div>
+                  <div class="step-body">
+                    <div class="step-headline">Exchange Code for Tokens in PowerShell</div>
+                    <div class="step-desc">Run this PowerShell command to exchange the code for your tokens:</div>
+                    <div class="code-snippet-box">
+                      <code>$body = @{ client_key="YOUR_KEY"; client_secret="YOUR_SECRET"; code="YOUR_CODE"; grant_type="authorization_code"; redirect_uri="https://oauth.pstmn.io/v1/callback" }; Invoke-RestMethod -Uri "https://open.tiktokapis.com/v2/oauth/token/" -Method Post -Body $body</code>
+                      <button type="button" class="btn-copy-code" onclick="window.copyToClipboard(this, '$body = @{ client_key=&quot;YOUR_KEY&quot;; client_secret=&quot;YOUR_SECRET&quot;; code=&quot;YOUR_CODE&quot;; grant_type=&quot;authorization_code&quot;; redirect_uri=&quot;https://oauth.pstmn.io/v1/callback&quot; }; Invoke-RestMethod -Uri &quot;https://open.tiktokapis.com/v2/oauth/token/&quot; -Method Post -Body $body')">📋 Copy Command</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="guide-card-step">
+                  <div class="step-badge">4</div>
+                  <div class="step-body">
+                    <div class="step-headline">Save in YouTube Clipper Pro</div>
+                    <div class="step-desc">Paste the <code>access_token</code> (starts with <code>act.</code>) and <code>refresh_token</code> (starts with <code>rft.</code>) above. The rolling token will renew itself automatically whenever used!</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Instagram Tab -->
+        <div id="tab-ig" class="social-tab-pane">
+          <div class="account-status-banner" id="banner-ig">
+            <span id="banner-ig-icon">⚪</span>
+            <span id="banner-ig-text">Instagram: Not Configured</span>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label class="form-label" for="ig-token">Instagram Graph API User / Page Access Token</label>
+            <input type="password" id="ig-token" class="form-input" placeholder="EAA...">
+            <span class="form-hint">Meta User/Page Token with <code>instagram_basic,instagram_content_publish</code> permissions.</span>
+          </div>
+
+          <!-- Permanent Auto-Refresh Credentials Section for Instagram -->
+          <div class="auto-refresh-box">
+            <div class="auto-refresh-header">
+              ⚡ Permanent Auto-Refresh (60-Day Meta Renewal)
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px;">
+              <div class="form-group">
+                <label class="form-label" for="ig-app-id" style="font-size: 0.75rem;">Meta App ID</label>
+                <input type="text" id="ig-app-id" class="form-input" placeholder="1234567890...">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="ig-app-secret" style="font-size: 0.75rem;">Meta App Secret</label>
+                <input type="password" id="ig-app-secret" class="form-input" placeholder="...">
+              </div>
+            </div>
+            <span class="form-hint" style="font-size: 0.7rem; color: var(--text-secondary);">With Meta App ID &amp; App Secret, the backend automatically extends your 60-day Long-Lived Token before it expires.</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="ig-account-id">Instagram Business Account ID</label>
+            <input type="text" id="ig-account-id" class="form-input" placeholder="17841400000000000">
+            <span class="form-hint">Your 17-digit numeric Instagram Business ID linked to your Facebook Page.</span>
+          </div>
+
+          <div class="tab-actions">
+            <button id="btn-refresh-ig" class="btn btn-outline btn-sm" title="Extend your 60-day long-lived token">🔄 Refresh Token</button>
+            <button id="btn-test-ig" class="btn btn-secondary btn-sm">🔍 Test Connection</button>
+            <button id="btn-save-ig" class="btn btn-primary btn-sm">💾 Save Instagram Auth</button>
+          </div>
+
+          <!-- Instagram Step-by-Step Tutorial & Notes Card -->
+          <div class="auth-tutorial-card" id="card-tutorial-ig">
+            <div class="tutorial-header-row" onclick="window.toggleTutorial('ig')">
+              <div class="tutorial-header-left">
+                <span class="tutorial-icon">📘</span>
+                <div>
+                  <div class="tutorial-header-title">Step-by-Step Setup &amp; Token Guide</div>
+                  <div class="tutorial-header-sub">How Meta 60-day auto-renewing tokens &amp; account IDs work</div>
+                </div>
+              </div>
+              <span class="tutorial-chevron" id="chevron-ig">▼</span>
+            </div>
+
+            <div class="tutorial-content-pane" id="pane-tutorial-ig">
+              <div class="token-specs-grid">
+                <div class="spec-pill">
+                  <span class="spec-label">Short-Lived Token</span>
+                  <span class="spec-val">⏱️ 1-2 Hours</span>
+                </div>
+                <div class="spec-pill">
+                  <span class="spec-label">Long-Lived Token</span>
+                  <span class="spec-val">🔄 60 Days (Auto-Renewing)</span>
+                </div>
+                <div class="spec-pill">
+                  <span class="spec-label">System User Token</span>
+                  <span class="spec-val">♾️ Never Expires</span>
+                </div>
+              </div>
+
+              <div class="guide-steps-flow">
+                <div class="guide-card-step">
+                  <div class="step-badge">1</div>
+                  <div class="step-body">
+                    <div class="step-headline">Prerequisites: Professional Instagram &amp; Facebook Page</div>
+                    <div class="step-desc">Instagram Content Publishing requires an <b>Instagram Business or Creator account</b> linked to a <b>Facebook Page</b>.</div>
+                  </div>
+                </div>
+
+                <div class="guide-card-step">
+                  <div class="step-badge">2</div>
+                  <div class="step-body">
+                    <div class="step-headline">Create Meta App &amp; Generate Token in Explorer</div>
+                    <div class="step-desc">In Meta Graph API Explorer, select your App &rarr; Add permissions: <code>instagram_basic</code>, <code>instagram_content_publish</code>, <code>pages_show_list</code>, <code>pages_read_engagement</code>. Click <b>Generate Access Token</b>.</div>
+                    <a href="https://developers.facebook.com/tools/explorer/" target="_blank" class="btn-guide-link">↗ Open Meta Graph API Explorer</a>
+                  </div>
+                </div>
+
+                <div class="guide-card-step">
+                  <div class="step-badge">3</div>
+                  <div class="step-body">
+                    <div class="step-headline">Find your Instagram Business Account ID</div>
+                    <div class="step-desc">In Explorer, run <code>GET /me/accounts</code> to get your Page ID, then run <code>GET /{PAGE_ID}?fields=instagram_business_account</code>. Copy the 17-digit numeric <code>id</code>.</div>
+                  </div>
+                </div>
+
+                <div class="guide-card-step">
+                  <div class="step-badge">4</div>
+                  <div class="step-body">
+                    <div class="step-headline">Save Credentials for 60-Day Auto-Renewal</div>
+                    <div class="step-desc">In your Meta App Dashboard under <b>App Settings &rarr; Basic</b>, copy your <b>App ID</b> and <b>App Secret</b> into the form above. YouTube Clipper Pro will automatically keep your 60-day token active!</div>
+                    <a href="https://developers.facebook.com/apps/" target="_blank" class="btn-guide-link">↗ Open Meta App Dashboard</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       POST HISTORY MODAL
+       ======================================================== -->
+  <div id="history-modal" class="modal-overlay">
+    <div class="loader-modal-content history-modal-box">
+      <div class="modal-header-row">
+        <div>
+          <h3 class="loader-title" style="margin-bottom: 2px;">📜 Social Post History</h3>
+          <p style="color: var(--text-secondary); font-size: 0.85rem;">Review all previously published clips and access live links anytime.</p>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button id="btn-clear-history" class="btn btn-outline btn-sm" title="Clear all history">🗑️ Clear</button>
+          <button id="btn-close-history" class="btn btn-secondary btn-sm">✕ Close</button>
+        </div>
+      </div>
+
+      <div id="history-items-container" class="history-items-list">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js?v=3.0"></script>
+</body>
+</html>
